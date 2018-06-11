@@ -1,7 +1,7 @@
 package newsapp.dhizak.com.newsapp.activities.custom_views;
 
 import android.content.Context;
-import android.os.Bundle;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -35,19 +35,19 @@ public class SearchWidget extends android.support.v7.widget.AppCompatImageView i
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        if(state!=null && state instanceof Bundle){
-            currentType = ((Bundle)state).getInt(TYPE);
-        }
-        super.onRestoreInstanceState(state);
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+        currentType = ((SavedState) state).state;
+        setIcon();
     }
 
     @Nullable
     @Override
     protected Parcelable onSaveInstanceState() {
-        super.onSaveInstanceState();
-        Bundle bundle = new Bundle();
-        bundle.putInt(TYPE,currentType);
-        return bundle;
+        Parcelable superState = super.onSaveInstanceState();
+        SavedState ss = new SavedState(superState);
+        ss.state = currentType;
+        return ss;
     }
 
     public void setType(int type){
@@ -78,9 +78,38 @@ public class SearchWidget extends android.support.v7.widget.AppCompatImageView i
         this.listener = listener;
     }
 
+    static class SavedState extends BaseSavedState {
+        int state;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        private SavedState(Parcel in) {
+            super(in);
+            state = in.readInt();
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(state);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = new Parcelable.Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+    }
+
     public interface OnSearchWidgetClickListener{
         void onClearButtonClicked();
         void onSearchButtonClicked();
     }
-
 }

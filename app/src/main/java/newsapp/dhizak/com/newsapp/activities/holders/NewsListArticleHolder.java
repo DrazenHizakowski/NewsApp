@@ -56,13 +56,11 @@ public class NewsListArticleHolder extends RecyclerView.ViewHolder {
         String createdBy = "";
         if (source != null) {
             createdBy = context.getString(R.string.created_by, source);
-
         }
         String createWhenAndBy = String.format("%s %s", createdWhen, createdBy);
         SpannableStringBuilder ssb = new SpannableStringBuilder(createWhenAndBy);
         ssb.setSpan(new StyleSpan(Typeface.BOLD), createWhenAndBy.indexOf(createdBy), createWhenAndBy.length(), flag);
         ssb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.news_list_source_color)), createWhenAndBy.indexOf(createdBy), createWhenAndBy.length(), flag);
-
 
         titleText.setText(article.getTitle());
         contentText.setText(article.getDescription());

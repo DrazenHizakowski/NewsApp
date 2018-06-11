@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -40,6 +42,7 @@ public class NewsListActivity extends AppCompatActivity implements NewsListView 
 
     private NewsListPresenter newsListPresenter;
     private NewsListNewsAdapter newsListNewsAdapter;
+    private EndlessRecyclerViewScrollListener endlessScrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,17 +71,13 @@ public class NewsListActivity extends AppCompatActivity implements NewsListView 
 
     @Override
     public void setQueryResults(List<Article> articles) {
+        endlessScrollListener.resetState();
         newsListNewsAdapter.setSearchQueryResults(articles);
     }
 
     @Override
     public void showQueryEmptyError() {
         Toast.makeText(this,R.string.query_empty,Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void showFirstScreen(List<Article> topHeadlines, List<Article> latestNews, int page) {
-
     }
 
     @Override
@@ -93,6 +92,7 @@ public class NewsListActivity extends AppCompatActivity implements NewsListView 
 
     @Override
     public void setTopHeadlinesAndLatestNews(List<Article> topHeadlines, List<Article> latestNews) {
+        endlessScrollListener.resetState();
         newsListNewsAdapter.addTopHeadlinesAndNewest(topHeadlines, latestNews);
     }
 
@@ -109,6 +109,7 @@ public class NewsListActivity extends AppCompatActivity implements NewsListView 
 
     @Override
     protected void onPause() {
+        newsListPresenter.onPause();
         super.onPause();
     }
 
@@ -136,16 +137,23 @@ public class NewsListActivity extends AppCompatActivity implements NewsListView 
                 newsListPresenter.onQueryChanged(searchField.getText().toString());
             }
         });
+        searchField.setOnEditorActionListener((textView, action, keyEvent) -> {
+            if(action == EditorInfo.IME_ACTION_DONE){
+                newsListPresenter.onQueryChanged(searchField.getText().toString());
+            }
+            return false;
+        });
     }
 
     private void setEndlessScrollListener(LinearLayoutManager layoutManager){
-        recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+        endlessScrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                page = (totalItemsCount-1) / NewsAppInterface.pageSize; //because of headers, could be betterN
+                page = ((totalItemsCount-1) / NewsAppInterface.pageSize)+1; //-1 because of headers, could be better, +1 for new page
                 newsListPresenter.onLoadMoreSearchResults(searchField.getText().toString(),page,totalItemsCount);
             }
-        });
+        };
+        recyclerView.addOnScrollListener(endlessScrollListener);
     }
 
 }

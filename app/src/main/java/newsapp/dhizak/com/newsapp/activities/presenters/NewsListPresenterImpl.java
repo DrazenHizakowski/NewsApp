@@ -2,7 +2,6 @@ package newsapp.dhizak.com.newsapp.activities.presenters;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,13 +51,13 @@ public class NewsListPresenterImpl implements NewsListPresenter {
     public void onQueryChanged(String query) {
         if (query.isEmpty()) {
             view.showQueryEmptyError();
-            if(currentType == TYPE_QUERY){
+            if (currentType == TYPE_QUERY) {
                 setStartScreen();
+                view.changeButtonType(SearchWidget.TYPE_SEARCH);
             }
-
         } else {
             currentType = TYPE_QUERY;
-            searchNews(query,1);
+            searchNews(query, 1);
         }
     }
 
@@ -67,14 +66,14 @@ public class NewsListPresenterImpl implements NewsListPresenter {
         bundle.putInt(BUNDLE_TYPE, currentType);
         bundle.putString(BUNDLE_QUERY, currentQuery);
         bundle.putParcelableArrayList(BUNDLE_TOP_HEADLINES, (ArrayList<? extends Parcelable>) topHeadlines);
-        bundle.putParcelableArrayList(BUNDLE_LATEST_NEWS, (ArrayList<? extends Parcelable>) queryResult);
+        bundle.putParcelableArrayList(BUNDLE_LATEST_NEWS, (ArrayList<? extends Parcelable>) latestNews);
         bundle.putParcelableArrayList(BUNDLE_QUERY_RESULTS, (ArrayList<? extends Parcelable>) queryResult);
     }
 
     @Override
     public void onLoadMoreSearchResults(String query, int page, int totalItemsCount) {
-        if(currentType == TYPE_QUERY){
-            searchNews(query,page);
+        if (currentType == TYPE_QUERY) {
+            searchNews(query, page);
         }
     }
 
@@ -150,27 +149,28 @@ public class NewsListPresenterImpl implements NewsListPresenter {
         compositeDisposable.add(networkCall);
     }
 
-    private void searchNews(String text,int page) {
+    private void searchNews(String text, int page) {
         view.showProgressBar(true);
         view.changeButtonType(SearchWidget.TYPE_CLEAR);
-        RestClient.getArticlesByQuery(text,page).
+        Disposable disposable = RestClient.getArticlesByQuery(text, page).
                 subscribeOn(Schedulers.io()).
                 observeOn(AndroidSchedulers.mainThread()).
-        subscribe(articles -> {
-            queryResult.addAll(articles);
-            if(page>1){
-                Log.e(TAG,"SETTING QUERY RESULTS "+page);
-                view.setQueryResults(articles);
-            }else{
-                Log.e(TAG,"ADDING QUERY RESULTS "+page);
-                view.addQueryResults(articles);
-            }
-            view.showProgressBar(false);
-        }, throwable -> {
-            throwable.printStackTrace();
-            view.showErrorMessage(throwable.getMessage());//very uggly
-            view.showProgressBar(false);
-        });
+                subscribe(articles -> {
+                    if (page > 1) {
+                        queryResult.addAll(articles);
+                        view.addQueryResults(articles);
+                    } else {
+                        queryResult.clear();
+                        queryResult.addAll(articles);
+                        view.setQueryResults(articles);
+                    }
+                    view.showProgressBar(false);
+                }, throwable -> {
+                    throwable.printStackTrace();
+                    view.showErrorMessage(throwable.getMessage());//very uggly
+                    view.showProgressBar(false);
+                });
+        compositeDisposable.add(disposable);
     }
 
 }

@@ -116,7 +116,7 @@ public class NewsListNewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public void addSearchQueryResults(List<Article> searchResult){
         currentType = NewsListPresenter.TYPE_QUERY;
-        int before = queryResultsList.size();
+        int before = queryResultsList.size()+1;
         this.queryResultsList.addAll(searchResult);
         notifyItemRangeInserted(before,queryResultsList.size());
     }

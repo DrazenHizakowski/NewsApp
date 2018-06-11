@@ -11,7 +11,6 @@ public interface NewsListView {
     void showErrorMessage(String message);
     void showMessage(String message);
     void addQueryResults(List<Article> articles);
-    void showFirstScreen(List<Article> topHeadlines,List<Article> latestNews, int page);
     void showProgressBar(boolean show);
     void setQueryText(String text);
     void setTopHeadlinesAndLatestNews(List<Article> topHeadlines, List<Article> latestNews);
