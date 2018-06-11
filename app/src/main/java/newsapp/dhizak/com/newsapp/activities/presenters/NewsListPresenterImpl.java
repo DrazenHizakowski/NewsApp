@@ -10,7 +10,6 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.schedulers.Schedulers;
 import newsapp.dhizak.com.newsapp.activities.custom_views.SearchWidget;
 import newsapp.dhizak.com.newsapp.activities.views.NewsListView;
@@ -125,16 +124,15 @@ public class NewsListPresenterImpl implements NewsListPresenter {
             return;
         }
         view.showProgressBar(true);
+
         Observable<List<Article>> headlinesObservable =
                 RestClient.getTopHeadlines().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
         Observable<List<Article>> newestArticlesObservable =
                 RestClient.getTopUSHeadlines().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
-        Observable<HeadlinesAndNewestEnvelope> headlinesAndNewestObservable = Observable.zip(headlinesObservable, newestArticlesObservable, new BiFunction<List<Article>, List<Article>, HeadlinesAndNewestEnvelope>() {
-            @Override
-            public HeadlinesAndNewestEnvelope apply(List<Article> topHeadlinesList, List<Article> newestArticlesLIst) throws Exception {
-                return new HeadlinesAndNewestEnvelope(topHeadlinesList, newestArticlesLIst);
-            }
-        });
+
+        Observable<HeadlinesAndNewestEnvelope> headlinesAndNewestObservable = Observable.zip(headlinesObservable,
+                newestArticlesObservable, (topHeadlinesList, newestArticlesLIst) ->
+                        new HeadlinesAndNewestEnvelope(topHeadlinesList, newestArticlesLIst));
 
         Disposable networkCall = headlinesAndNewestObservable.
                 subscribe(headlinesAndNewestEnvelope -> {

@@ -38,7 +38,6 @@ public class NewsListArticleHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-
     public void bindData(Article article) {
         this.article = article;
         init();
