@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">NewsApp</string>
     <string name="news_list_search_hint">Search latest news...</string>
+    <string name="search_results">Search Results</string>
+    <string name="latest_news">Latest News</string>
+    <string name="top_headlines">Top Headlines</string>
+    <string name="created_by">by %s</string>
+    <string name="query_empty">Query empty!</string>
 </resources>

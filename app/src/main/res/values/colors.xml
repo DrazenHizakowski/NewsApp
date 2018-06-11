@@ -6,6 +6,10 @@
     <!-- if there are few color in app they can have more generic names -->
     <color name="news_list_background">#f4f4f4</color>
     <color name="news_list_search_background">#fff</color>
+    <color name="news_list_article_background">#fff</color>
+    <color name="news_list_divider_background">#f4f4f4</color>
+    <color name="news_list_search_cursor">#009688</color>
     <color name="news_list_search_toolbar_background">#673ab7</color>
+    <color name="news_list_source_color">#673ab7</color>
     <color name="news_list_recycler_background">#fff</color>
 </resources>

@@ -1,5 +1,6 @@
 package newsapp.dhizak.com.newsapp.activities.holders;
 
+import android.support.annotation.StringRes;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -20,5 +21,9 @@ public class NewsListHeaderHolder extends RecyclerView.ViewHolder {
     public NewsListHeaderHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this,itemView);
+    }
+
+    public void setHeaderTitle(@StringRes int textResource){
+        headerTitle.setText(textResource);
     }
 }
